@@ -1,0 +1,86 @@
+version: '3.3'
+
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:12-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD:
+      PGDATA: /data/postgres
+    volumes:
+      - postgres-data:/data/postgres
+    ports:
+      - 5432:5432
+    networks:
+      - postgres
+
+  redis:
+    container_name: redis
+    image: redis:5.0.5-alpine
+    command: ['redis-server', '--appendonly', 'yes']
+    hostname: redis
+    volumes:
+      - redis-data:/data
+    ports:
+      - 6379:6379
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.1
+    environment:
+      ELASTIC_PASSWORD: elastic
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+      - ./elasticsearch/jvm.options:/usr/share/elasticsearch/config/jvm.options
+      - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - 9200:9200
+
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:7.3.1
+    volumes:
+      - kibana-data:/usr/share/kibana/data
+    ports:
+      - 5601:5601
+
+  localstack:
+    container_name: localstack
+    image: localstack/localstack
+    ports:
+      - "4567-4597:4567-4597"
+      - "${PORT_WEB_UI-8080}:${PORT_WEB_UI-8080}"
+    environment:
+      - SERVICES=${SERVICES- }
+      - DEBUG=${DEBUG- }
+      - DATA_DIR=${DATA_DIR- }
+      - PORT_WEB_UI=${PORT_WEB_UI- }
+      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR- }
+      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - localstack-data:/tmp/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet:  10.13.0.1/16
+  postgres:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet:  10.14.0.1/16
+
+volumes:
+  postgres-data:
+  redis-data:
+  elasticsearch-data:
+  kibana-data:
+  localstack-data:
