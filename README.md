@@ -45,6 +45,25 @@ To skip a lot of directories changes and speed up the development process you ca
 alias dev-stack='docker-compose -f /path/to/dev-stack/docker.compose.yaml'
 ```
 
+### Download images
+
+```bash
+dev-stack pull
+```
+
+### Run apps
+
+```bash
+dev-stack up -d # runs in background
+```
+
+### Stop apps
+
+```bash
+dev-stack stop
+```
+
+
 ## Authors
 
 * **Júlio Corradi** - *Initial work* - [juliogc](https://github.com/juliogc)
